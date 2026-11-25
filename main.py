@@ -1,8 +1,58 @@
+from pathlib import Path
+
+import anndata as ad
+import pyranges1 as pr
 from anndata import AnnData
 
 class RangeData(AnnData):
+    @classmethod
+    def from_h5ad(cls, filename: str | Path) -> "RangeData":
+        adata = ad.read_h5ad(filename)
 
-    # This method defines the behavior of `print(RangedData)`
+        var = adata.var.rename(
+            columns={
+                "chrom": "Chromosome",
+                "start": "Start",
+                "end": "End",
+            }
+        )
+
+        rdata = cls(
+            X=adata.X,
+            obs=adata.obs,
+            var=var,
+            uns=adata.uns,
+            obsm=adata.obsm,
+            varm=adata.varm,
+            layers=adata.layers,
+            obsp=adata.obsp,
+            varp=adata.varp,
+            raw=adata.raw,
+        )
+
+        rdata._var_ranges = cls._build_var_ranges(rdata.var)
+        return rdata
+
+    @staticmethod
+    def _build_var_ranges(var) -> pr.PyRanges:
+        ranges_df = var.copy()
+
+        # Keep each range linked to its row in AnnData.var.
+        position_column = "_range_position"
+        while position_column in ranges_df.columns:
+            position_column = f"_{position_column}"
+
+        ranges_df.insert(0, position_column, range(len(ranges_df)))
+        return pr.PyRanges(ranges_df.reset_index(drop=True))
+
+    @property
+    def var_ranges(self) -> pr.PyRanges:
+        return self._var_ranges
+
+    def refresh_var_ranges(self) -> None:
+        """Rebuild var_ranges after changing the range columns in .var."""
+        self._var_ranges = self._build_var_ranges(self.var)
+
     def __str__(self) -> str:
         return (
             f"RangeData object with n_obs × n_vars = "
