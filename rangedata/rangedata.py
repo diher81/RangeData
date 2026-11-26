@@ -1,7 +1,30 @@
 import pyranges1 as pr
 from anndata import AnnData
 
+from .constants import ANNDATA_COLUMNS, PYRANGES_COLUMNS, COLUMN_MAPPING
+
 class RangeData(AnnData):
+
+    def __init__(
+            self,
+            adata: AnnData,
+            *args,
+            **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        if ANNDATA_COLUMNS.issubset(adata.var.columns):
+            var = adata.var.rename(columns=COLUMN_MAPPING)
+        elif PYRANGES_COLUMNS.issubset(adata.var.columns):
+            var = adata.var.copy()
+        else:
+            raise ValueError(
+                f"Input must contain either {ANNDATA_COLUMNS} "
+                f"or {PYRANGES_COLUMNS}."
+            )
+
+        self.var = var
+        self._var_ranges = self._build_var_ranges(var)
 
     @staticmethod
     def _build_var_ranges(var) -> pr.PyRanges:

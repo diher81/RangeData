@@ -1,4 +1,9 @@
 
-# AnnData columns
-REQUIRED_COLUMNS_1= set("chrom", "start", "end")
-REQUIRED_COLUMNS_2 = set("Chromosome", "Start", "End")
+# Required columns
+ANNDATA_COLUMNS= {"chrom", "start", "end"}
+PYRANGES_COLUMNS = {"Chromosome", "Start", "End"}
+COLUMN_MAPPING = {
+    "chrom": "Chromosome",
+    "start": "Start",
+    "end": "End",
+}
