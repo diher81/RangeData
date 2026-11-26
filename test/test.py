@@ -3,8 +3,9 @@ import pandas as pd
 import pyranges1 as pr
 import pytest
 
-from main import RangeData
+from rangedata.rangedata import RangeData
 from pathlib import Path
+from pandas.testing import assert_frame_equal
 
 base_dir = "Library/CloudStorage/OneDrive-WageningenUniversity&Research/InternshipTBB/Data"
 
@@ -53,3 +54,27 @@ def test_var_ranges_has_one_entry_per_variable(
     assert len(ranges) == range_data.n_vars
     assert "_range_position" in ranges.columns
     assert ranges["_range_position"].is_unique
+
+# def test_var_ranges_matches_var_coordinates(
+#     range_data: RangeData,
+# ) -> None:
+#     expected = (
+#         range_data.var
+#         .rename(columns={
+#             "chrom": "Chromosome",
+#             "start": "Start",
+#             "end": "End",
+#         })
+#         [["Chromosome", "Start", "End"]]
+#         .reset_index(drop=True)
+#     )
+#     expected.insert(0, "_range_position", range(len(expected)))
+#
+#     actual = (
+#         range_data.var_ranges.df
+#         .sort_values("_range_position")
+#         .reset_index(drop=True)
+#     )
+#     actual = actual[expected.columns]
+#
+#     assert_frame_equal(actual, expected)

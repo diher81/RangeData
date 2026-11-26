@@ -1,4 +1,4 @@
-from main import RangeData
+from rangedata.rangedata import RangeData
 from pathlib import Path
 
 base_dir = "Library/CloudStorage/OneDrive-WageningenUniversity&Research/InternshipTBB/Data"
