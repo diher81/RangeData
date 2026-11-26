@@ -11,8 +11,6 @@ class RangeData(AnnData):
             *args,
             **kwargs,
     ):
-        super().__init__(*args, **kwargs)
-
         if ANNDATA_COLUMNS.issubset(adata.var.columns):
             var = adata.var.rename(columns=COLUMN_MAPPING)
         elif PYRANGES_COLUMNS.issubset(adata.var.columns):
@@ -23,8 +21,20 @@ class RangeData(AnnData):
                 f"or {PYRANGES_COLUMNS}."
             )
 
-        self.var = var
-        self._var_ranges = self._build_var_ranges(var)
+        super().__init__(
+            X=adata.X,
+            obs=adata.obs,
+            var=var,
+            uns=adata.uns,
+            obsm=adata.obsm,
+            varm=adata.varm,
+            layers=adata.layers,
+            obsp=adata.obsp,
+            varp=adata.varp,
+            raw=adata.raw,
+        )
+
+        self._var_ranges = self._build_var_ranges(self.var)
 
     @staticmethod
     def _build_var_ranges(var) -> pr.PyRanges:

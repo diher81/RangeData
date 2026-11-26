@@ -20,7 +20,7 @@ def range_data() -> RangeData:
     if not DATA_FILE.is_file():
         pytest.skip(f"Test data file not found: {DATA_FILE}")
 
-    return RangeData.from_h5ad(DATA_FILE)
+    return RangeData.read_h5ad(DATA_FILE)
 
 def test_loads_as_rangedata_and_anndata(range_data: RangeData) -> None:
     assert isinstance(range_data, RangeData)
@@ -55,26 +55,26 @@ def test_var_ranges_has_one_entry_per_variable(
     assert "_range_position" in ranges.columns
     assert ranges["_range_position"].is_unique
 
-# def test_var_ranges_matches_var_coordinates(
-#     range_data: RangeData,
-# ) -> None:
-#     expected = (
-#         range_data.var
-#         .rename(columns={
-#             "chrom": "Chromosome",
-#             "start": "Start",
-#             "end": "End",
-#         })
-#         [["Chromosome", "Start", "End"]]
-#         .reset_index(drop=True)
-#     )
-#     expected.insert(0, "_range_position", range(len(expected)))
-#
-#     actual = (
-#         range_data.var_ranges.df
-#         .sort_values("_range_position")
-#         .reset_index(drop=True)
-#     )
-#     actual = actual[expected.columns]
-#
-#     assert_frame_equal(actual, expected)
+def test_var_ranges_matches_var_coordinates(
+    range_data: RangeData,
+) -> None:
+    expected = (
+        range_data.var
+        .rename(columns={
+            "chrom": "Chromosome",
+            "start": "Start",
+            "end": "End",
+        })
+        [["Chromosome", "Start", "End"]]
+        .reset_index(drop=True)
+    )
+    expected.insert(0, "_range_position", range(len(expected)))
+
+    actual = (
+        range_data.var_ranges.df
+        .sort_values("_range_position")
+        .reset_index(drop=True)
+    )
+    actual = actual[expected.columns]
+
+    assert_frame_equal(actual, expected)
